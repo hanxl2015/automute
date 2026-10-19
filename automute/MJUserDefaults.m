@@ -10,6 +10,7 @@ static NSString *const MUTE_ON_LOCK = @"MUTE_ON_LOCK";
 static NSString *const MUTE_ON_HEADPHONES = @"MUTE_ON_HEADPHONES";
 static NSString *const MUTE_NOTIFICATIONS_ENABLED = @"MUTE_NOTIFICATIONS_ENABLED";
 static NSString *const MENU_BAR_ICON_HIDDEN = @"MENU_BAR_ICON_HIDDEN";
+static NSString *const LANGUAGE = @"LANGUAGE";
 
 @interface MJUserDefaults ()
 @property(nonatomic, strong) NSUserDefaults *defaults;
@@ -38,6 +39,7 @@ static NSString *const MENU_BAR_ICON_HIDDEN = @"MENU_BAR_ICON_HIDDEN";
             MUTE_ON_HEADPHONES: @(YES),
             MUTE_NOTIFICATIONS_ENABLED: @(YES),
             MENU_BAR_ICON_HIDDEN: @(NO),
+            LANGUAGE: @(MJLanguageSystem),
     }];
 
 
@@ -140,6 +142,17 @@ static NSString *const MENU_BAR_ICON_HIDDEN = @"MENU_BAR_ICON_HIDDEN";
 - (void)setMenuBarIconHidden:(BOOL)menuBarIconHidden
 {
     [self.defaults setBool:menuBarIconHidden forKey:MENU_BAR_ICON_HIDDEN];
+    [self.defaults synchronize];
+}
+
+- (MJLanguage)language
+{
+    return (MJLanguage)[self.defaults integerForKey:LANGUAGE];
+}
+
+- (void)setLanguage:(MJLanguage)language
+{
+    [self.defaults setInteger:language forKey:LANGUAGE];
     [self.defaults synchronize];
 }
 

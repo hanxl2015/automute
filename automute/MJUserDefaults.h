@@ -1,5 +1,13 @@
 #import <Foundation/Foundation.h>
 
+/// Which language the UI is shown in. `MJLanguageSystem` — the default — means
+///  "whatever the system says", which is also what macOS shows for the per-app
+///  language setting in System Settings -> General -> Language & Region.
+typedef NS_ENUM(NSInteger, MJLanguage) {
+    MJLanguageSystem = 0,
+    MJLanguageChinese,
+    MJLanguageEnglish,
+};
 
 @interface MJUserDefaults : NSObject
 
@@ -31,4 +39,7 @@
 
 - (BOOL)isMenuBarIconHidden;
 - (void)setMenuBarIconHidden:(BOOL)menuBarIconHidden;
+
+- (MJLanguage)language;
+- (void)setLanguage:(MJLanguage)language;
 @end

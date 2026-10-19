@@ -45,6 +45,21 @@
                    name:@"com.apple.screenIsUnlocked"
                  object:nil];
 
+    /// The screen saver can come up without the screen locking (it depends on
+    ///  the "require password" setting), and then `com.apple.screenIsLocked`
+    ///  never fires and the mute would be skipped. Catch the screen saver too.
+    [[NSDistributedNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(didLock)
+                   name:@"com.apple.screensaver.didstart"
+                 object:nil];
+
+    [[NSDistributedNotificationCenter defaultCenter]
+            addObserver:self
+               selector:@selector(didUnlock)
+                   name:@"com.apple.screensaver.didstop"
+                 object:nil];
+
     [[[NSWorkspace sharedWorkspace] notificationCenter]
             addObserver:self
                selector:@selector(willPowerOff)

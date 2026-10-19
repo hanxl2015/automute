@@ -28,7 +28,7 @@
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aA4-wc-Z0L">
                     <rect key="frame" x="19" y="57" width="202" height="63"/>
-                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Do you want AutoMute to launch at login?" id="ecV-mk-Trn">
+                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Do you want AutoMute+ to launch at login?" id="ecV-mk-Trn">
                         <font key="font" metaFont="systemBold"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -45,7 +45,7 @@
                     <rect key="frame" x="19" y="128" width="202" height="116"/>
                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="MmE-wr-jOf">
                         <font key="font" metaFont="system"/>
-                        <string key="title">For AutoMute to truly keep you safe, it's recommended that it will launch at login, so you don't have to relaunch it yourself after your Mac is restarted.</string>
+                        <string key="title">For AutoMute+ to truly keep you safe, it's recommended that it will launch at login, so you don't have to relaunch it yourself after your Mac is restarted.</string>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>

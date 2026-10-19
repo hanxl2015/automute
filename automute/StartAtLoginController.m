@@ -23,105 +23,55 @@
 #import "StartAtLoginController.h"
 #import <ServiceManagement/ServiceManagement.h>
 
+/// SMAppService only: the app registers itself.
+///
+/// The old mechanism was a LoginItems helper bundle toggled through
+///  SMLoginItemSetEnabled, plus an app group so the helper could tell the app it
+///  had been launched at login. All of it is gone, because
+///  SMLoginItemSetEnabled has been deprecated since macOS 13 — which this app
+///  now requires — and because a helper is no longer how login items work.
 @implementation StartAtLoginController
-
-@synthesize identifier = _identifier;
-
-#if !__has_feature(objc_arc)
-- (void)dealloc {
-    self.identifier = nil;
-    [super dealloc];
-}
-#endif
 
 + (BOOL)automaticallyNotifiesObserversForKey:(NSString *)theKey {
     BOOL automatic = NO;
-    
+
     if ([theKey isEqualToString:@"startAtLogin"]) {
-        automatic = NO;
-    } else if ([theKey isEqualToString:@"enabled"]) {
         automatic = NO;
     } else {
         automatic=[super automaticallyNotifiesObserversForKey:theKey];
     }
-    
+
     return automatic;
 }
 
--(id)initWithIdentifier:(NSString*)identifier {
-    self = [self init];
-    if(self) {
-        self.identifier = identifier;
-    }
-    return self;
-}
-
--(void)setIdentifier:(NSString *)identifier {
-    _identifier = identifier;
-    [self startAtLogin];
-#if !defined(NDEBUG)
-    NSLog(@"Launcher '%@' %@ configured to start at login",
-          self.identifier, (_enabled ? @"is" : @"is not"));
-#endif
+/// A registration the user has not approved yet in System Settings still counts
+///  as on: otherwise the menu checkbox would flip itself back off the instant it
+///  was ticked, and the user would never see why.
+static BOOL MJLoginItemIsRegistered(void)
+{
+    SMAppServiceStatus status = SMAppService.mainAppService.status;
+    return status == SMAppServiceStatusEnabled || status == SMAppServiceStatusRequiresApproval;
 }
 
 - (BOOL)startAtLogin {
-    if (!_identifier)
-        return NO;
-    
-    BOOL isEnabled  = NO;
-    
-    // the easy and sane method (SMJobCopyDictionary) can pose problems when sandboxed. -_-
-    CFArrayRef cfJobDicts = SMCopyAllJobDictionaries(kSMDomainUserLaunchd);
-    NSArray* jobDicts = CFBridgingRelease(cfJobDicts);
-    
-    if (jobDicts && [jobDicts count] > 0) {
-        for (NSDictionary* job in jobDicts) {
-            if ([_identifier isEqualToString:[job objectForKey:@"Label"]]) {
-                isEnabled = [[job objectForKey:@"OnDemand"] boolValue];
-                break;
-            }
-        }
-    }
-    
-    if (isEnabled != _enabled) {
-        [self willChangeValueForKey:@"enabled"];
-        _enabled = isEnabled;
-        [self didChangeValueForKey:@"enabled"];
-    }
-    
-    return isEnabled;
+    return MJLoginItemIsRegistered();
 }
 
 - (void)setStartAtLogin:(BOOL)flag {
-    if (!_identifier)
-        return;
-    
     [self willChangeValueForKey:@"startAtLogin"];
-    
-    if (!SMLoginItemSetEnabled((__bridge CFStringRef)_identifier, (flag) ? true : false)) {
-        NSLog(@"SMLoginItemSetEnabled failed!");
-        
-        [self willChangeValueForKey:@"enabled"];
-        _enabled = NO;
-        [self didChangeValueForKey:@"enabled"];
-    } else {
-        [self willChangeValueForKey:@"enabled"];
-        _enabled = YES;
-        [self didChangeValueForKey:@"enabled"];
+
+    NSError *error = nil;
+    SMAppService *service = SMAppService.mainAppService;
+    BOOL success = flag ? [service registerAndReturnError:&error]
+                        : [service unregisterAndReturnError:&error];
+    if (!success) {
+        NSLog(@"SMAppService %@ failed: %@", flag ? @"register" : @"unregister", error);
+    } else if (flag && service.status == SMAppServiceStatusRequiresApproval) {
+        /// The user has to allow it in System Settings -> General -> Login Items.
+        [SMAppService openSystemSettingsLoginItems];
     }
-    
+
     [self didChangeValueForKey:@"startAtLogin"];
-}
-
-- (BOOL)enabled
-{
-    return _enabled;
-}
-
-- (void)setEnabled:(BOOL)enabled
-{
-    [self setStartAtLogin:enabled];
 }
 
 @end

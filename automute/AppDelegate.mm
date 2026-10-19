@@ -1,10 +1,10 @@
 #import "AppDelegate.h"
 #include "MJHeadphoneTracker.hpp"
+#import <Carbon/Carbon.h>
 #import "MJMenuBarController.h"
 #import "MJUserDefaults.h"
 #import "MJDisableMuteManager.h"
 #import "StartAtLoginController.h"
-#import "MJConstants.h"
 #import "MJNotifier.h"
 #import "MJSystemEventObserver.h"
 #import "MJAudioUtils.hpp"
@@ -28,7 +28,7 @@
 {
 //    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[[NSBundle mainBundle] bundleIdentifier]];
 
-    BOOL didLaunchAtLogin = [self checkAndClearDidLaunchAtLogin];
+    BOOL didLaunchAtLogin = [self didLaunchAtLogin];
 
     self.notifier = [[MJNotifier alloc] init];
 
@@ -48,7 +48,7 @@
             ? nil
             : [self buildMenuBarController];
     self.disableMuteManager = [[MJDisableMuteManager alloc] initWithDelegate:self];
-    self.startAtLoginController = [[StartAtLoginController alloc] initWithIdentifier:MJ_HELPER_BUNDLE_ID];
+    self.startAtLoginController = [[StartAtLoginController alloc] init];
     self.systemEventObserver = [[MJSystemEventObserver alloc] initWithDelegate:self];
 
     if (!MJUserDefaults.shared.didSeeWelcomeScreen) {
@@ -66,13 +66,21 @@
                                      headphonesConnected:self.headphonesTracker->isDefaultOutputDeviceHeadphones()];
 }
 
-- (BOOL)checkAndClearDidLaunchAtLogin
+/// Whether this launch was performed by the system at login.
+///
+/// The app is told to hide its menu bar icon when it launches at login, and
+///  that preference is sticky — so if we can't tell a login launch apart from a
+///  user clicking the app, a user whose icon was hidden would have no way to get
+///  it back short of relaunching the app again. SMAppService sign-ins deliver a
+///  `kAEOpenApplication` Apple Event whose property data is
+///  `keyAELaunchedAsLogInItem`; every user-initiated launch carries no property
+///  data. (Verified on macOS 27: `NSApplicationLaunchIsDefaultLaunchKey` stays
+///  YES for login-item launches, and reading utmpx would need a sandbox hole.)
+- (BOOL)didLaunchAtLogin
 {
-    NSUserDefaults *groupDefaults = [[NSUserDefaults alloc] initWithSuiteName:MJ_SHARED_GROUP_ID];
-    BOOL didLaunchAtLogin = [groupDefaults boolForKey:MJ_DID_LAUNCH_AT_LOGIN_KEY];
-    [groupDefaults setBool:NO forKey:MJ_DID_LAUNCH_AT_LOGIN_KEY];
-    [groupDefaults synchronize];
-    return didLaunchAtLogin;
+    NSAppleEventDescriptor *event = NSAppleEventManager.sharedAppleEventManager.currentAppleEvent;
+    return event.eventID == kAEOpenApplication &&
+           [event paramDescriptorForKeyword:keyAEPropData].enumCodeValue == keyAELaunchedAsLogInItem;
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)sender hasVisibleWindows:(BOOL)flag

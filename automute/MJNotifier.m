@@ -1,4 +1,5 @@
 #import "MJNotifier.h"
+#import "MJStrings.h"
 #import "MJUserDefaults.h"
 
 @interface MJNotifier() <NSUserNotificationCenterDelegate>
@@ -19,17 +20,17 @@
 
 - (void)showHeadphonesDisconnectedMuteNotification
 {
-    [self showNotificationWithTitle:@"Headphones Disconnected" body:@"Sound Muted."];
+    [self showNotificationWithTitle:MJStr(@"Headphones Disconnected") body:MJStr(@"Sound Muted.")];
 }
 
 - (void)showSleepMuteNotification
 {
-    [self showNotificationWithTitle:@"Woke up from sleep" body:@"Sound Muted."];
+    [self showNotificationWithTitle:MJStr(@"Woke up from sleep") body:MJStr(@"Sound Muted.")];
 }
 
 - (void)showLockMuteNotification
 {
-    [self showNotificationWithTitle:@"Unlocked" body:@"Sound Muted."];
+    [self showNotificationWithTitle:MJStr(@"Unlocked") body:MJStr(@"Sound Muted.")];
 }
 
 - (void)showNotificationWithTitle:(NSString *)title

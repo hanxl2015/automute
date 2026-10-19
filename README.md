@@ -1,28 +1,28 @@
-# AutoMute
-A MacOS menu bar app that mutes the sound when:
-* Headphones get disconnected
-* Mac goes to sleep
-* Mac gets locked / enters screen saver
+# AutoMute+
 
-## Marketing blurb
-As long as AutoMute is running, whenever your Mac goes to sleep, gets locked, or a pair of headphones gets disconnected - the sound is automatically muted.
+macOS 菜单栏小工具，在下面这些时刻自动静音：
 
-Works with bluetooth headphones as well!
+- **耳机断开连接** —— 有线和蓝牙都适用（走的是系统默认输出设备的变化）
+- **Mac 睡眠 / 关机**
+- **Mac 锁屏 / 进入屏保**
 
-This is meant to prevent those embarrassing moments when you're arriving at your perfectly silent office or school, opening up your mac, only to find out your beloved "Best of Shakira" playlist is still playing at full volume from last night...
+三个触发条件都能单独开关。除此之外还有：隐藏菜单栏图标、登录时启动、临时禁用静音（1 / 6 / 12 / 24 小时或永久）、静音时发系统通知。
 
-It will also prevent the classic "walk too far away with your bluetooth headset" scenario, where again your mac will take over the sound and allow your co-workers to bask in your embarrassment.
+菜单栏图标会反映耳机当前是否连着；图标变红表示静音已被临时禁用。
 
-## Download / Install
-Best to just get it from the Mac App Store:
+## 构建
 
-[> **AutoMute on Mac App Store** <](https://itunes.apple.com/us/app/automute-preventing-awkward-situations/id1118136179)
+```
+open automute.xcodeproj
+```
 
-Otherwise, simply open the workspace file in Xcode and build "AutoMute", everything *should* work.
+在 Xcode 里选一次你自己的 Team，然后直接 Run。不需要 CocoaPods，也没有额外的 target。
 
-## Screenshots
-![Screenshot1](https://user-images.githubusercontent.com/31284/49688097-ac653900-fb15-11e8-9c48-3db96df5dcbf.png)
-![Screenshot2](https://user-images.githubusercontent.com/31284/49688098-ae2efc80-fb15-11e8-8034-14c67fb69d90.png)
+要求 macOS 13+（“登录时启动”用的是 `SMAppService`）。
 
-## Thankies
-[StartAtLoginController](https://github.com/alexzielenski/StartAtLoginController) by Alex Zielenski and Travis Tilley was super helpful!
+## 许可
+
+MIT，见 [LICENSE](LICENSE)。
+
+本项目基于 [Yoni Levy 的 AutoMute](https://github.com/yonilevy/automute)，Copyright © 2018 Yoni Levy。
+`StartAtLoginController` 来自 [alexzielenski/StartAtLoginController](https://github.com/alexzielenski/StartAtLoginController)，作者 Alex Zielenski 与 Travis Tilley。

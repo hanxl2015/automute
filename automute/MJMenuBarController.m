@@ -1,4 +1,5 @@
 #import "MJMenuBarController.h"
+#import "MJStrings.h"
 #import "MJUserDefaults.h"
 #import "YLStatusItemPopupDisplayer.h"
 #import "WelcomePopupView.h"
@@ -13,12 +14,20 @@ static const NSInteger MENU_ITEM_MUTE_ON_HEADPHONES = 105;
 static const NSInteger MENU_ITEM_MUTE_NOTIFICATIONS = 106;
 static const NSInteger MENU_ITEM_MUTE_ON_LOCK = 107;
 static const NSInteger MENU_ITEM_HIDE_MENU_BAR_ICON = 108;
+static const NSInteger MENU_ITEM_WELCOME = 109;
+static const NSInteger MENU_ITEM_MUTE_TRIGGERS = 110;
+static const NSInteger MENU_ITEM_LANGUAGE = 111;
+static const NSInteger MENU_ITEM_QUIT = 112;
 
 static const NSInteger MENU_ITEM_DISABLE_1H = 201;
 static const NSInteger MENU_ITEM_DISABLE_6H = 202;
 static const NSInteger MENU_ITEM_DISABLE_12H = 203;
 static const NSInteger MENU_ITEM_DISABLE_24H = 204;
 static const NSInteger MENU_ITEM_DISABLE_FOREVER = 205;
+
+static const NSInteger MENU_ITEM_LANGUAGE_SYSTEM = 301;
+static const NSInteger MENU_ITEM_LANGUAGE_CHINESE = 302;
+static const NSInteger MENU_ITEM_LANGUAGE_ENGLISH = 303;
 
 @interface MJMenuBarController () <NSMenuDelegate>
 @property(nonatomic, strong) NSStatusItem *statusItem;
@@ -54,35 +63,78 @@ static const NSInteger MENU_ITEM_DISABLE_FOREVER = 205;
     NSMenu *menu = [[NSMenu alloc] init];
     menu.delegate = self;
     [menu addItem:[self buildVersionMenuItem]];
-    [menu addItem:[self buildMenuItemWithTitle:@"Welcome" action:@selector(showWelcomePopup)]];
+    [menu addItem:[self buildMenuItemWithTag:MENU_ITEM_WELCOME action:@selector(showWelcomePopup)]];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItem:[NSMenuItem separatorItem]];
-    NSMenuItem *triggersItem = [self buildMenuItemWithTitle:@"Mute Triggers" action:nil];
+    NSMenuItem *triggersItem = [self buildMenuItemWithTag:MENU_ITEM_MUTE_TRIGGERS action:nil];
     NSMenu *muteOnSubmenu = [[NSMenu alloc] init];
-    [muteOnSubmenu addItem:[self buildMenuItemWithTitle:@"Mac Goes to Sleep / Powers Off" action:@selector(muteOnSleepToggled) tag:MENU_ITEM_MUTE_ON_SLEEP]];
-    [muteOnSubmenu addItem:[self buildMenuItemWithTitle:@"Mac Gets Locked / Enters Screen Saver" action:@selector(muteOnLockToggled) tag:MENU_ITEM_MUTE_ON_LOCK]];
-    [muteOnSubmenu addItem:[self buildMenuItemWithTitle:@"Headphones Disconnected" action:@selector(muteOnHeadphonesToggled) tag:MENU_ITEM_MUTE_ON_HEADPHONES]];
+    [muteOnSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_MUTE_ON_SLEEP action:@selector(muteOnSleepToggled)]];
+    [muteOnSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_MUTE_ON_LOCK action:@selector(muteOnLockToggled)]];
+    [muteOnSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_MUTE_ON_HEADPHONES action:@selector(muteOnHeadphonesToggled)]];
     triggersItem.submenu = muteOnSubmenu;
     [menu addItem:triggersItem];
-    [menu addItem:[self buildMenuItemWithTitle:@"Show Notifications" action:@selector(muteNotificationsToggled) tag:MENU_ITEM_MUTE_NOTIFICATIONS]];
+    [menu addItem:[self buildMenuItemWithTag:MENU_ITEM_MUTE_NOTIFICATIONS action:@selector(muteNotificationsToggled)]];
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItem:[self buildMenuItemWithTitle:@"Enable" action:@selector(enableMute) tag:MENU_ITEM_ENABLE_MUTING]];
-    NSMenuItem *disableItem = [self buildMenuItemWithTitle:@"Disable" action:@selector(disableMutingTimeClicked:) tag:MENU_ITEM_DISABLE_MUTING];
+    [menu addItem:[self buildMenuItemWithTag:MENU_ITEM_ENABLE_MUTING action:@selector(enableMute)]];
+    NSMenuItem *disableItem = [self buildMenuItemWithTag:MENU_ITEM_DISABLE_MUTING action:@selector(disableMutingTimeClicked:)];
     NSMenu *disableSubmenu = [[NSMenu alloc] init];
-    [disableSubmenu addItem:[self buildMenuItemWithTitle:@"Disable" action:@selector(disableMutingTimeClicked:) tag:MENU_ITEM_DISABLE_FOREVER]];
-    [disableSubmenu addItem:[self buildMenuItemWithTitle:@"For 1 Hour" action:@selector(disableMutingTimeClicked:) tag:MENU_ITEM_DISABLE_1H]];
-    [disableSubmenu addItem:[self buildMenuItemWithTitle:@"For 6 Hours" action:@selector(disableMutingTimeClicked:) tag:MENU_ITEM_DISABLE_6H]];
-    [disableSubmenu addItem:[self buildMenuItemWithTitle:@"For 12 Hours" action:@selector(disableMutingTimeClicked:) tag:MENU_ITEM_DISABLE_12H]];
-    [disableSubmenu addItem:[self buildMenuItemWithTitle:@"For 24 Hours" action:@selector(disableMutingTimeClicked:) tag:MENU_ITEM_DISABLE_24H]];
+    [disableSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_DISABLE_FOREVER action:@selector(disableMutingTimeClicked:)]];
+    [disableSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_DISABLE_1H action:@selector(disableMutingTimeClicked:)]];
+    [disableSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_DISABLE_6H action:@selector(disableMutingTimeClicked:)]];
+    [disableSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_DISABLE_12H action:@selector(disableMutingTimeClicked:)]];
+    [disableSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_DISABLE_24H action:@selector(disableMutingTimeClicked:)]];
     disableItem.submenu = disableSubmenu;
     [menu addItem:disableItem];
 
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItem:[self buildMenuItemWithTitle:@"Hide Menu Bar Icon" action:@selector(hideMenuBarIconToggled) tag:MENU_ITEM_HIDE_MENU_BAR_ICON]];
-    [menu addItem:[self buildMenuItemWithTitle:@"Launch at Login" action:@selector(launchAtLoginToggled) tag:MENU_ITEM_LAUNCH_AT_LOGIN]];
+    [menu addItem:[self buildMenuItemWithTag:MENU_ITEM_HIDE_MENU_BAR_ICON action:@selector(hideMenuBarIconToggled)]];
+    [menu addItem:[self buildMenuItemWithTag:MENU_ITEM_LAUNCH_AT_LOGIN action:@selector(launchAtLoginToggled)]];
+    NSMenuItem *languageItem = [self buildMenuItemWithTag:MENU_ITEM_LANGUAGE action:nil];
+    NSMenu *languageSubmenu = [[NSMenu alloc] init];
+    [languageSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_LANGUAGE_SYSTEM action:@selector(languageSelected:)]];
+    [languageSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_LANGUAGE_CHINESE action:@selector(languageSelected:)]];
+    [languageSubmenu addItem:[self buildMenuItemWithTag:MENU_ITEM_LANGUAGE_ENGLISH action:@selector(languageSelected:)]];
+    languageItem.submenu = languageSubmenu;
+    [menu addItem:languageItem];
     [menu addItem:[NSMenuItem separatorItem]];
-    [menu addItem:[self buildMenuItemWithTitle:@"Quit" action:@selector(quit)]];
+    [menu addItem:[self buildMenuItemWithTag:MENU_ITEM_QUIT action:@selector(quit)]];
     return menu;
+}
+
+- (NSMenuItem *)buildMenuItemWithTag:(NSInteger)tag action:(SEL)action
+{
+    return [self buildMenuItemWithTitle:[self localizedTitleForTag:tag] action:action tag:tag];
+}
+
+/// The one place that turns a tag into a title. Both the initial build and the
+///  re-render on open go through it, so the two can never drift apart.
+- (NSString *)localizedTitleForTag:(NSInteger)tag
+{
+    switch (tag) {
+        case MENU_ITEM_WELCOME: return MJStr(@"Welcome");
+        case MENU_ITEM_MUTE_TRIGGERS: return MJStr(@"Mute Triggers");
+        case MENU_ITEM_MUTE_ON_SLEEP: return MJStr(@"Mac Goes to Sleep / Powers Off");
+        case MENU_ITEM_MUTE_ON_LOCK: return MJStr(@"Mac Gets Locked / Enters Screen Saver");
+        case MENU_ITEM_MUTE_ON_HEADPHONES: return MJStr(@"Headphones Disconnected");
+        case MENU_ITEM_MUTE_NOTIFICATIONS: return MJStr(@"Show Notifications");
+        case MENU_ITEM_ENABLE_MUTING: return MJStr(@"Enable");
+        case MENU_ITEM_DISABLE_MUTING: return MJStr(@"Disable");
+        case MENU_ITEM_DISABLE_FOREVER: return MJStr(@"Disable");
+        case MENU_ITEM_DISABLE_1H: return MJStr(@"For 1 Hour");
+        case MENU_ITEM_DISABLE_6H: return MJStr(@"For 6 Hours");
+        case MENU_ITEM_DISABLE_12H: return MJStr(@"For 12 Hours");
+        case MENU_ITEM_DISABLE_24H: return MJStr(@"For 24 Hours");
+        case MENU_ITEM_HIDE_MENU_BAR_ICON: return MJStr(@"Hide Menu Bar Icon");
+        case MENU_ITEM_LAUNCH_AT_LOGIN: return MJStr(@"Launch at Login");
+        case MENU_ITEM_LANGUAGE: return MJStr(@"Language");
+        case MENU_ITEM_LANGUAGE_SYSTEM: return MJStr(@"Follow System");
+        // Like macOS, each language names itself, so the option you want is
+        //  readable even when the current language is the one you can't read.
+        case MENU_ITEM_LANGUAGE_CHINESE: return @"中文";
+        case MENU_ITEM_LANGUAGE_ENGLISH: return @"English";
+        case MENU_ITEM_QUIT: return MJStr(@"Quit");
+        default: return @"";
+    }
 }
 
 - (NSMenuItem *)buildMenuItemWithTitle:(NSString *)title action:(SEL)action tag:(const NSInteger)tag
@@ -93,16 +145,11 @@ static const NSInteger MENU_ITEM_DISABLE_FOREVER = 205;
     return item;
 }
 
-- (NSMenuItem *)buildMenuItemWithTitle:(NSString *)title action:(SEL)action
-{
-    return [self buildMenuItemWithTitle:title action:action tag:nil];
-}
-
 - (NSMenuItem *)buildVersionMenuItem
 {
     NSDictionary *info = NSBundle.mainBundle.infoDictionary;
     NSString *versionTitle = [NSString stringWithFormat:@"%@ v%@ [%@]", info[@"CFBundleName"], info[@"CFBundleShortVersionString"], info[@"CFBundleVersion"] ];
-    NSMenuItem *versionItem = [self buildMenuItemWithTitle:versionTitle action:nil];
+    NSMenuItem *versionItem = [self buildMenuItemWithTitle:versionTitle action:nil tag:0];
     versionItem.enabled = NO;
     return versionItem;
 }
@@ -110,6 +157,19 @@ static const NSInteger MENU_ITEM_DISABLE_FOREVER = 205;
 - (void)menuWillOpen:(NSMenu *)menu
 {
     [self.popoverDisplayer hidePopoverWithAnimate:NO];
+    [self refreshTitlesInMenu:menu];
+}
+
+/// Titles are re-rendered on every open, so picking a language shows up the next
+///  time the menu drops down — no rebuild, no relaunch.
+- (void)refreshTitlesInMenu:(NSMenu *)menu
+{
+    for (NSMenuItem *item in menu.itemArray) {
+        if (item.tag != 0) {
+            item.title = [self localizedTitleForTag:item.tag];
+        }
+        [self refreshTitlesInMenu:item.submenu];
+    }
 }
 
 - (void)disableMutingTimeClicked:(NSView *)sender
@@ -172,6 +232,20 @@ static const NSInteger MENU_ITEM_DISABLE_FOREVER = 205;
 - (void)hideMenuBarIconToggled
 {
     [self.delegate menuBarController_toggleHideMenuBarIcon];
+}
+
+- (MJLanguage)languageForTag:(NSInteger)tag
+{
+    switch (tag) {
+        case MENU_ITEM_LANGUAGE_CHINESE: return MJLanguageChinese;
+        case MENU_ITEM_LANGUAGE_ENGLISH: return MJLanguageEnglish;
+        default: return MJLanguageSystem;
+    }
+}
+
+- (void)languageSelected:(NSMenuItem *)sender
+{
+    [MJUserDefaults.shared setLanguage:[self languageForTag:sender.tag]];
 }
 
 - (void)showWelcomePopup
@@ -249,6 +323,11 @@ static const NSInteger MENU_ITEM_DISABLE_FOREVER = 205;
     }
     if (menuItem.tag == MENU_ITEM_MUTE_ON_HEADPHONES) {
         menuItem.state = [self.delegate menuBarController_isSetToMuteOnHeadphones] ? NSOnState : NSOffState;
+    }
+    if (menuItem.tag == MENU_ITEM_LANGUAGE_SYSTEM ||
+        menuItem.tag == MENU_ITEM_LANGUAGE_CHINESE ||
+        menuItem.tag == MENU_ITEM_LANGUAGE_ENGLISH) {
+        menuItem.state = (MJUserDefaults.shared.language == [self languageForTag:menuItem.tag]) ? NSOnState : NSOffState;
     }
 
     return YES;

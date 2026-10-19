@@ -22,16 +22,10 @@
 
 #import <Foundation/Foundation.h>
 
-@interface StartAtLoginController : NSObject {
-    NSString *_identifier;
-    NSURL    *_url;
-    BOOL _enabled;
-}
+/// Toggles "launch at login" through SMAppService (macOS 13+). No helper bundle
+///  and no identifier — the app registers itself.
+@interface StartAtLoginController : NSObject
 
 @property (assign, nonatomic, readwrite)   BOOL startAtLogin;
-@property (assign, nonatomic, readwrite)   BOOL enabled;
-@property (copy, nonatomic, readwrite)     NSString *identifier;
-
--(id)initWithIdentifier:(NSString*)identifier;
 
 @end

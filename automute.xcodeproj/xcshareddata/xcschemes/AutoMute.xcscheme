@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E9395D6C21A8814B0078CC5C"
-               BuildableName = "AutoMute.app"
+               BuildableName = "AutoMute+.app"
                BlueprintName = "AutoMute"
                ReferencedContainer = "container:automute.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E9395D6C21A8814B0078CC5C"
-            BuildableName = "AutoMute.app"
+            BuildableName = "AutoMute+.app"
             BlueprintName = "AutoMute"
             ReferencedContainer = "container:automute.xcodeproj">
          </BuildableReference>
@@ -66,7 +66,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E9395D6C21A8814B0078CC5C"
-            BuildableName = "AutoMute.app"
+            BuildableName = "AutoMute+.app"
             BlueprintName = "AutoMute"
             ReferencedContainer = "container:automute.xcodeproj">
          </BuildableReference>
